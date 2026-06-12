@@ -109,21 +109,9 @@ const SECTIONS = [
   },
 ];
 
-const SYSTEM_PROMPT = `You are a helpful resource assistant for Direct Clicks, a digital marketing agency specializing in PPC (Google Ads) for State Farm insurance agents. Your job is to help team members quickly find the right training doc, video, form, or tool.
-
-Here is the complete resource directory:
-
-${SECTIONS.map(s => s.title + "\n" + s.resources.map(r => "- " + r.name + " | " + r.type + " | " + r.url).join("\n")).join("\n\n")}
-
-When someone asks a question:
-1. Give a SHORT, direct response - 2-4 sentences max
-2. Name the specific resource clearly and ALWAYS include the URL as a markdown link like [Resource Name](url)
-3. Mention which section it lives in
-4. If multiple resources are relevant, list them all with links
-5. If something is not in the directory, say so honestly
-6. Never make up URLs
-
-Keep tone friendly and concise. Always return clickable markdown links.`;
+const SYSTEM_PROMPT = "You are a helpful resource assistant for Direct Clicks, a digital marketing agency specializing in PPC (Google Ads) for State Farm insurance agents. Your job is to help team members quickly find the right training doc, video, form, or tool.\n\nHere is the complete resource directory:\n\n" +
+  SECTIONS.map(s => s.title + "\n" + s.resources.map(r => "- " + r.name + " | " + r.type + " | " + r.url).join("\n")).join("\n\n") +
+  "\n\nWhen someone asks a question:\n1. Give a SHORT, direct response - 2-4 sentences max\n2. Name the specific resource clearly and ALWAYS include the URL as a markdown link like [Resource Name](url)\n3. Mention which section it lives in\n4. If multiple resources are relevant, list them all with links\n5. If something is not in the directory, say so honestly\n6. Never make up URLs\n\nKeep tone friendly and concise. Always return clickable markdown links.";
 
 const SUGGESTIONS = [
   "How do I build an AI Calls campaign?",
@@ -191,7 +179,12 @@ export default function ResourceFinder() {
     try {
       const response = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": import.meta.env.VITE_ANTHROPIC_API_KEY,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true",
+        },
         body: JSON.stringify({
           model: "claude-sonnet-4-6",
           max_tokens: 1000,
